@@ -1,0 +1,138 @@
+name: Ecommerce quality
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      full_integration:
+        description: Evaluate the configured full-mode environment
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ECOMMERCE_MODE: demo
+      ECOMMERCE_ENABLE_FAULTS: '1'
+      EVAL_PROMPT_VERSION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install backend and test dependencies
+        run: python -m pip install -e '.[test]'
+      - name: Verify dataset and unit tests
+        run: |
+          python -m evals.dataset --output "${RUNNER_TEMP}/cases.jsonl"
+          test "$(wc -l < "${RUNNER_TEMP}/cases.jsonl")" -eq 1200
+          cmp evals/cases.jsonl "${RUNNER_TEMP}/cases.jsonl"
+          python -m pytest
+      - name: Run demo HTTP regression
+        run: |
+          export ECOMMERCE_DATA_DIR="${RUNNER_TEMP}/ecommerce-regression"
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8765 > "${RUNNER_TEMP}/ecommerce-server.log" 2>&1 &
+          server_pid=$!
+          candidate_pid=''
+          trap 'kill "$server_pid"; if [ -n "$candidate_pid" ]; then kill "$candidate_pid"; fi' EXIT
+          curl --fail --silent --show-error --retry 25 --retry-delay 1 --retry-connrefused http://127.0.0.1:8765/api/health
+          python -m evals.run --profile smoke --faults --require-mode demo --fail-on-regression --output reports/demo.json
+          python -m evals.feedback_case prepare --output "${RUNNER_TEMP}/candidate-policies.json"
+          ECOMMERCE_DATA_DIR="${RUNNER_TEMP}/ecommerce-candidate" \
+            ECOMMERCE_KNOWLEDGE_FILE="${RUNNER_TEMP}/candidate-policies.json" \
+            python -m uvicorn app.main:app --host 127.0.0.1 --port 8766 > "${RUNNER_TEMP}/ecommerce-candidate.log" 2>&1 &
+          candidate_pid=$!
+          curl --fail --silent --show-error --retry 25 --retry-delay 1 --retry-connrefused http://127.0.0.1:8766/api/health
+          python -m evals.feedback_case replay --baseline-url http://127.0.0.1:8765 --candidate-url http://127.0.0.1:8766 --output reports/feedback.json
+      - name: Publish demo evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-evaluation
+          path: |
+            reports/demo.json
+            reports/feedback.json
+            ${{ runner.temp }}/ecommerce-server.log
+            ${{ runner.temp }}/ecommerce-candidate.log
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist
+
+  full-integration:
+    if: github.event_name == 'workflow_dispatch' && inputs.full_integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      EVAL_BASE_URL: ${{ secrets.EVAL_FULL_BASE_URL }}
+      EVAL_TOKEN_ALICE: ${{ secrets.EVAL_TOKEN_ALICE }}
+      EVAL_TOKEN_BOB: ${{ secrets.EVAL_TOKEN_BOB }}
+      EVAL_TOKEN_OPS: ${{ secrets.EVAL_TOKEN_OPS }}
+      EVAL_JUDGE_BASE_URL: ${{ secrets.EVAL_JUDGE_BASE_URL }}
+      EVAL_JUDGE_API_KEY: ${{ secrets.EVAL_JUDGE_API_KEY }}
+      EVAL_JUDGE_MODEL: ${{ vars.EVAL_JUDGE_MODEL }}
+      EVAL_MODEL_VERSION: ${{ vars.EVAL_MODEL_VERSION }}
+      EVAL_PROMPT_VERSION: ${{ vars.EVAL_PROMPT_VERSION }}
+      EVAL_KNOWLEDGE_VERSION: ${{ vars.EVAL_KNOWLEDGE_VERSION }}
+      LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+      LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+      LANGFUSE_BASE_URL: ${{ vars.LANGFUSE_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Evaluate configured full stack
+        run: |
+          mkdir -p reports
+          if [ -z "$EVAL_BASE_URL" ]; then
+            printf '%s\n' '{"state":"skipped","reason":"EVAL_FULL_BASE_URL is unset"}' > reports/full.json
+            exit 0
+          fi
+          if [ -z "$EVAL_TOKEN_ALICE" ] || [ -z "$EVAL_TOKEN_BOB" ] || [ -z "$EVAL_TOKEN_OPS" ]; then
+            printf '%s\n' '{"state":"skipped","reason":"full-mode synthetic identity tokens are required"}' > reports/full.json
+            exit 0
+          fi
+          judge_args=()
+          if [ -n "$EVAL_JUDGE_BASE_URL" ] && [ -n "$EVAL_JUDGE_API_KEY" ] && [ -n "$EVAL_JUDGE_MODEL" ]; then
+            python -m pip install 'langfuse>=3.15,<4'
+            judge_args+=(--judge)
+          else
+            export EVAL_JUDGE_SKIP_REASON='Judge base URL, API key or model is unset'
+          fi
+          if ! python -m evals.run --profile all --workers 4 --require-mode full --fail-on-regression "${judge_args[@]}" --output reports/full.json; then
+            if [ ! -f reports/full.json ]; then
+              printf '%s\n' '{"state":"error","reason":"full-mode evaluation failed before a report was available; see job log"}' > reports/full.json
+            fi
+            exit 1
+          fi
+      - name: Publish full-mode evaluation
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-evaluation
+          path: reports/full.json

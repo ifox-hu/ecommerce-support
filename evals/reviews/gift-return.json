@@ -1,0 +1,26 @@
+{
+  "case": {
+    "id": "reviews.gift-return.01",
+    "category": "rag",
+    "group": "rag.opened_gift_evidence_gap",
+    "split": "regression",
+    "prompt": "活动赠品拆封了，主商品还能退吗？",
+    "expected": {
+      "route": "policy",
+      "sources_include": ["P-GIFT-RETURN"],
+      "facts": ["赠品拆封", "活动条款", "不单独决定"]
+    }
+  },
+  "feedback_comment": "希望先确认赠品拆封对主商品退货资格的影响。",
+  "review_note": "演示商城政策复核确认缺少赠品条款。补入活动适用条件并加入回归用例。",
+  "policy": {
+    "id": "P-GIFT-RETURN",
+    "title": "活动赠品拆封与主商品退货",
+    "text": "活动赠品拆封不单独决定主商品能否退货。主商品仍须符合通常退货条件，并按下单时活动条款核对赠品退回或折价要求。",
+    "version": "2026.11-review1",
+    "effective_from": "2026-11-01",
+    "channel": "官方商城",
+    "topic": "return",
+    "covers": ["赠品"]
+  }
+}

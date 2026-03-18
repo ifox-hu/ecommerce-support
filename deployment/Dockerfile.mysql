@@ -1,0 +1,3 @@
+FROM mysql:8.4
+COPY data/business_mysql.sql /docker-entrypoint-initdb.d/01-business.sql
+COPY data/analytics_mysql.sql /docker-entrypoint-initdb.d/02-analytics.sql

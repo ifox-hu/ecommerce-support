@@ -1,0 +1,31 @@
+groups:
+  - name: ecommerce-support
+    rules:
+      - alert: EcommerceModelTimeout
+        expr: sum(increase(ecommerce_operations_total{kind="model",outcome="timeout"}[1m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: 客服模型超时
+          description: 过去一分钟内发生模型超时，使用运行编号检查模型及降级节点。
+      - alert: EcommerceToolFailureRate
+        expr: >-
+          sum(increase(ecommerce_operations_total{kind="tool",outcome!~"ok|success"}[2m]))
+          / clamp_min(sum(increase(ecommerce_operations_total{kind="tool"}[2m])), 1) > 0.2
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: 工具失败率超过 20%
+          description: 检查 MCP 连接及对应业务数据源。
+      - alert: EcommerceRequestLatency
+        expr: >-
+          histogram_quantile(0.95,
+            sum by (le) (rate(ecommerce_operation_duration_seconds_bucket{kind="agent"}[2m]))
+          ) > 3
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: 客服请求 P95 延迟超过 3 秒
+          description: 使用运行编号定位模型、检索和工具耗时。

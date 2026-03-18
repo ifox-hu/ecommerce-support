@@ -1,0 +1,38 @@
+services:
+  prometheus:
+    build:
+      context: .
+      dockerfile: prometheus/Dockerfile
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - 127.0.0.1:9090:9090
+    volumes:
+      - prometheus-data:/prometheus
+
+  grafana:
+    build:
+      context: .
+      dockerfile: grafana/Dockerfile
+    depends_on:
+      - prometheus
+      - jaeger
+    ports:
+      - 127.0.0.1:3001:3000
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-demo-dashboard}
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - 127.0.0.1:4318:4318
+      - 127.0.0.1:16686:16686
+
+volumes:
+  prometheus-data:
+  grafana-data:

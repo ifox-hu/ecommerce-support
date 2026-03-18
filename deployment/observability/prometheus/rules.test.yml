@@ -1,0 +1,35 @@
+rule_files:
+  - rules.yml
+
+evaluation_interval: 5s
+
+tests:
+  - interval: 5s
+    input_series:
+      - series: 'ecommerce_operations_total{kind="model",name="chat",outcome="timeout"}'
+        values: '0x3 1x20'
+      - series: 'ecommerce_operations_total{kind="tool",name="lookup_order",outcome="ok"}'
+        values: '0+1x24'
+      - series: 'ecommerce_operations_total{kind="tool",name="lookup_order",outcome="error"}'
+        values: '0x3 1 2 3 4 5x20'
+    alert_rule_test:
+      - eval_time: 10s
+        alertname: EcommerceModelTimeout
+      - eval_time: 30s
+        alertname: EcommerceModelTimeout
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: 客服模型超时
+              description: 过去一分钟内发生模型超时，使用运行编号检查模型及降级节点。
+      - eval_time: 85s
+        alertname: EcommerceModelTimeout
+      - eval_time: 45s
+        alertname: EcommerceToolFailureRate
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: 工具失败率超过 20%
+              description: 检查 MCP 连接及对应业务数据源。
