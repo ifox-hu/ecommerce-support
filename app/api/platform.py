@@ -10,7 +10,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import Response, StreamingResponse
 
-from app.models.platform import AnalyticsRequest, ChatRequest, FeedbackRequest, FeedbackReview
+from app.api.schemas import AnalyticsRequest, ChatRequest, FeedbackRequest, FeedbackReview
 from app.services.runs import RequestConflict
 
 

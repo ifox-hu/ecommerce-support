@@ -177,7 +177,7 @@ npm.cmd --prefix frontend test
 
 | 目录 | 职责 |
 | --- | --- |
-| `app/api`、`app/models` | HTTP、SSE、角色校验和边界模型 |
+| `app/api` | HTTP 接口、SSE、角色校验和请求模型 |
 | `app/agent` | LangGraph 客服节点、固定路由和 MCP 客户端 |
 | `app/services` | 订单、工单、检索、会话、执行记录和模型调用 |
 | `app/services/analytics` | 问数图、指标目录、SQL 校验与只读查询 |
