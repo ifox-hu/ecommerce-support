@@ -108,12 +108,13 @@ def test_customer_can_describe_the_problem_instead_of_choosing_a_menu(client):
 
 @pytest.mark.parametrize(("question", "reply", "needs_evidence"), [
     ("为什么天空是蓝色的？", "蓝光在大气中散射得更强。", False),
-    ("我这种处方药能和布洛芬一起用吗？", "相互作用取决于具体药物和剂量。", True),
+    ("我这种处方药能和布洛芬一起用吗？", "向开药医生或药师核对", True),
     ("给我写一封简短的请假邮件。", None, False),
 ])
 def test_general_questions_answer_and_disclose_missing_evidence(client, monkeypatch, question, reply, needs_evidence):
     async def local_model(self, url, **kwargs):
         request = httpx.Request("POST", url, json=kwargs["json"])
+        assert not needs_evidence, "Unsupported medication advice should not be generated."
         if reply is None:
             raise httpx.ConnectError("offline", request=request)
         assert url.endswith("/api/chat")
@@ -132,6 +133,7 @@ def test_general_questions_answer_and_disclose_missing_evidence(client, monkeypa
         assert "没有检索到" in chunks[0]
         assert reply in "".join(chunks[1:])
         assert len(result["retrieval"]) == 2
+        assert result["status"] == "ok"
     elif reply:
         assert result["answer"].startswith(reply)
     else:

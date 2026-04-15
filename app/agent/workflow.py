@@ -6,7 +6,7 @@ from typing import TypedDict
 from langgraph.graph import END, START, StateGraph
 
 from app.agent.mcp_client import ToolUnavailable
-from app.services.decisions import INTENTS, extract_order, forced_intent
+from app.services.decisions import INTENTS, extract_order, forced_intent, professional_guidance
 from app.services.retrieval import topics_for
 
 
@@ -157,6 +157,8 @@ class SupportWorkflow:
 
     async def general(self, state: SupportState) -> dict:
         notice = state.get("notice", "")
+        if notice and (guidance := professional_guidance(state["message"])):
+            return {"answer": notice + guidance}
         try:
             answer = await self.decisions.answer_general(
                 state["message"], state["memory"]["recent"], run_id=state["run_id"], session_id=state["session_id"],

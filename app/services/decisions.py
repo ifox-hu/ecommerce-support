@@ -26,10 +26,21 @@ VAGUE_OPENING = re.compile(
     r"(?:一下|件事|个问题|个事|点事)?|请帮忙确认|麻烦看看|麻烦了|谢谢(?:帮忙)?|多谢|请确认一下))"
     r"+[\s，。！？：,.!?:]*"
 )
+PROFESSIONAL_GUIDANCE = (
+    (
+        ("处方", "药物", "用药", "布洛芬", "治疗", "诊断", "症状", "副作用", "剂量", "病历"),
+        "如果需要确认用药或药物能否合用，请带上完整药名、剂量和其他在用药物的信息，向开药医生或药师核对。",
+    ),
+    (
+        ("法律", "违法", "起诉", "判决", "法规", "劳动合同", "竞业限制", "劳动仲裁", "合同效力", "赔偿责任"),
+        "判断具体情况时，需要核对适用地区、相关日期和文件原文。可以带上这些材料向当地法律援助机构或律师核实。",
+    ),
+    (
+        ("投资", "理财", "股票", "基金", "收益率", "报税", "财务审计"),
+        "可先核对相关机构发布的正式资料。涉及个人投资、纳税或财务决定时，请把具体条件交给相应的专业人士核实。",
+    ),
+)
 PROFESSIONAL_TERMS = (
-    "处方", "药物", "用药", "布洛芬", "治疗", "诊断", "症状", "副作用", "剂量", "病历",
-    "法律", "违法", "起诉", "判决", "法规", "劳动合同", "竞业限制", "劳动仲裁", "合同效力", "赔偿责任",
-    "投资", "理财", "股票", "基金", "收益率", "报税", "财务审计",
     "行业标准", "国家标准", "认证标准", "技术规范", "标准号", "国标", "适用条款", "监管要求", "科研论文",
     "实时数据", "最新数据", "汇率",
 )
@@ -56,6 +67,10 @@ def forced_intent(text: str) -> str | None:
     return None
 
 
+def professional_guidance(text: str) -> str | None:
+    return next((advice for terms, advice in PROFESSIONAL_GUIDANCE if any(term in text for term in terms)), None)
+
+
 def demo_intent(text: str) -> str:
     if any(word in text for word in ("退款进", "退款到账了", "退款状态", "退到哪", "售后进", "售后状态", "退货进", "退回的钱", "退款结果")):
         return "aftersale"
@@ -76,7 +91,9 @@ def demo_intent(text: str) -> str:
         return "policy"
     if not text.strip(" \t\r\n，。！？,.!?") or VAGUE_OPENING.fullmatch(text.strip()):
         return "clarify"
-    return "professional" if any(term in text for term in PROFESSIONAL_TERMS) else "general"
+    if professional_guidance(text) or any(term in text for term in PROFESSIONAL_TERMS):
+        return "professional"
+    return "general"
 
 
 class DecisionService:
