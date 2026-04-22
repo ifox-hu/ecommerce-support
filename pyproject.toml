@@ -34,7 +34,7 @@ integrations = [
 test = ["pytest>=8,<10", "pytest-asyncio>=1,<2"]
 
 [tool.setuptools.packages.find]
-include = ["app*", "mcp_servers*", "evals*"]
+include = ["app*", "evals*"]
 namespaces = true
 
 [tool.pytest.ini_options]

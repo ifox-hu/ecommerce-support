@@ -8,11 +8,11 @@ from fastapi.staticfiles import StaticFiles
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from redis.asyncio import Redis
 
-from app.agent.mcp_client import CommerceTools
 from app.agent.workflow import SupportWorkflow
 from app.api.platform import router
 from app.config import Settings
 from app.core.observability import Observability
+from app.mcp.client import CommerceTools
 from app.services.business import BusinessRepository
 from app.services.decisions import DecisionService
 from app.services.memory import ChatMemoryRepository, ConversationMemory

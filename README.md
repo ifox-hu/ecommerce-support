@@ -178,11 +178,11 @@ npm.cmd --prefix frontend test
 | 目录 | 职责 |
 | --- | --- |
 | `app/api` | HTTP 接口、SSE、角色校验和请求模型 |
-| `app/agent` | LangGraph 客服节点、固定路由和 MCP 客户端 |
+| `app/agent` | LangGraph 客服节点和固定路由 |
+| `app/mcp` | MCP 客户端、独立工具进程和订单访问边界 |
 | `app/services` | 订单、工单、检索、会话、执行记录和模型调用 |
 | `app/services/analytics` | 问数图、指标目录、SQL 校验与只读查询 |
 | `app/core` | 指标、链路和模型跟踪 |
-| `mcp_servers` | 电商工具进程与订单访问边界 |
 | `frontend/src/views` | 顾客对话、客服工单和运营问数页面 |
 | `data`、`evals`、`tests` | 合成数据、评测集与回归用例 |
 | `deployment` | 容器与可观测配置 |

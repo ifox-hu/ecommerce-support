@@ -5,7 +5,7 @@ from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agent.mcp_client import ToolUnavailable
+from app.mcp.client import ToolUnavailable
 from app.services.decisions import INTENTS, extract_order, forced_intent, professional_guidance
 from app.services.retrieval import topics_for
 
