@@ -32,6 +32,13 @@ python -m evals.run --base-url http://127.0.0.1:8767 --profile holdout --categor
 
 GitHub Actions 每次变更验证固定数据与冒烟回归、反馈样例和前端产物。手动触发 `full_integration` 时，配置 `EVAL_FULL_BASE_URL` 及 `EVAL_TOKEN_ALICE`、`EVAL_TOKEN_BOB`、`EVAL_TOKEN_OPS` 的 Secret。实例需要使用相应的合成订单和政策，并启用完整的真实服务依赖。补齐 Judge Secret 和 `EVAL_JUDGE_MODEL` Variable 后，同一任务会执行完整 Judge 评测。缺少完整环境地址、身份凭证或 Judge 配置时，报告会记录对应的跳过项。
 
+## 解读评测结果
+
+- `dataset_size` 是完整样例集的规模。一次运行实际覆盖的样例按 `summary.states` 统计，结果要同时注明 `profile` 和 `runtime.mode`。
+- 冒烟回归用于检查主要分支。定向复测只覆盖选中的样例，修复后的全量通过率需要以同一个版本重新运行 `--profile all` 后计算。
+- 记忆对照中的 `memory_order_reference` 统计最终回答是否正确引用历史订单。报告应同时注明两组样本数与通过数。基线保留率为零时，使用百分点描述差异。
+- Judge 配置和评分分别记录在 `judge_model`、`judge_skip_reason` 和 `summary.judge`。引用模型评分时应同时说明模型及校准口径。
+
 ## 反馈回放
 
 先运行默认政策的基线 API 实例。准备独立候选政策文件，然后在另一个端口启动候选 API 实例。
