@@ -53,7 +53,9 @@
 
 默认 `demo` 模式使用预置合成数据、SQLite、实际 LangGraph 检查点及实际 MCP 子进程。售后意图、证据判断、语义召回和重排默认使用内置实现，BM25 与 RRF 在服务端计算。通用问答可使用本地模型。Redis、MySQL、Milvus 和 BGE-M3 可以分别通过配置接入。`full` 模式对接实际 TypeSafe Jev、聊天模型、Milvus、BGE-M3 与 BGE-Reranker，数据库使用 Redis 和 MySQL。
 
-演示模式的通用问答使用本地 Ollama。启动 Ollama 后可用 `ollama pull deepseek-r1:7b` 安装默认模型，或通过 `ECOMMERCE_GENERAL_MODEL` 指定已安装的聊天模型。应用默认连接 `http://127.0.0.1:11434`。若后端在 Docker 中且 Ollama 在宿主机，可将 `ECOMMERCE_GENERAL_MODEL_URL` 设为 `http://host.docker.internal:11434`。商城查询和有依据的演示政策回答可独立使用。
+演示模式的通用问答默认使用本地 Ollama。启动 Ollama 后可用 `ollama pull deepseek-r1:7b` 安装默认模型，或通过 `ECOMMERCE_GENERAL_MODEL` 指定已安装的聊天模型。应用默认连接 `http://127.0.0.1:11434`。若后端在 Docker 中且 Ollama 在宿主机，可将 `ECOMMERCE_GENERAL_MODEL_URL` 设为 `http://host.docker.internal:11434`。
+
+也可在 `.env` 将 `ECOMMERCE_GENERAL_MODEL_PROVIDER` 设为 `openai`，填入服务商的 API Base URL（通常以 `/v1` 结尾）、模型 ID 和 API Key，然后重启后端。配置项见 `.env.example`。应用会调用 Base URL 下的 `/chat/completions`，请求包含本轮问题和最近最多四条会话消息。商城查询和有依据的演示政策回答可独立使用。
 
 ## 4. 演示路径
 

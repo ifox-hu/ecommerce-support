@@ -10,7 +10,7 @@ def build_app(data_dir, **overrides):
     from app.config import Settings
     from app.main import create_app
 
-    return create_app(Settings(data_dir=data_dir, enable_faults=True, **overrides))
+    return create_app(Settings(_env_file=None, data_dir=data_dir, enable_faults=True, **overrides))
 
 
 def headers(user="alice", fault=""):
@@ -141,6 +141,46 @@ def test_general_questions_answer_and_disclose_missing_evidence(client, monkeypa
     else:
         assert result["degraded"] is True
         assert "暂时不可用" in result["answer"]
+
+
+@pytest.mark.parametrize(("status", "payload", "expected"), [
+    (200, {"choices": [{"message": {"content": "Good morning"}}], "usage": {"total_tokens": 42}}, "Good morning"),
+    (200, {"choices": [{"message": {"content": None, "reasoning_content": "private reasoning"}}]}, None),
+    (429, {"error": {"message": "provider quota exceeded"}}, None),
+])
+def test_demo_chat_supports_an_openai_compatible_provider(tmp_path, monkeypatch, status, payload, expected):
+    requests = []
+
+    async def gateway(self, url, **kwargs):
+        request = httpx.Request("POST", url, headers=kwargs.get("headers"), json=kwargs["json"])
+        requests.append(request)
+        return httpx.Response(status, request=request, json=payload)
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", gateway)
+    question = "把早上好翻成英文。"
+    with TestClient(build_app(
+        tmp_path, general_model_provider="openai", general_model_url="https://gateway.example/v1/",
+        general_model="gateway-model", general_model_api_key="test-token",
+    )) as service:
+        result = chat(service, question)[-1][1]
+        policy = chat(service, "普通商品七天无理由退货需要什么条件？")[-1][1]
+
+    assert len(requests) == 1
+    request = requests[0]
+    assert str(request.url) == "https://gateway.example/v1/chat/completions"
+    assert request.headers["authorization"] == "Bearer test-token"
+    body = json.loads(request.content)
+    assert body["model"] == "gateway-model"
+    assert body["messages"][0]["role"] == "system"
+    assert body["messages"][-1] == {"role": "user", "content": question}
+    assert body["stream"] is False
+    assert "options" not in body and "think" not in body
+    assert result["route"] == "general"
+    if expected:
+        assert result["status"] == "ok" and result["answer"] == expected
+    else:
+        assert result["status"] == "degraded" and "暂时不可用" in result["answer"]
+    assert policy["route"] == "policy" and policy["sources"][0]["id"] == "P-RETURN"
 
 
 def test_product_parameters_without_a_source_are_not_guessed(client):

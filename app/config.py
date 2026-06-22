@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,8 +21,10 @@ class Settings(BaseSettings):
     knowledge_file: Path = Path(__file__).resolve().parents[1] / "data" / "policies.json"
     embedding_url: str = "http://127.0.0.1:11434"
     embedding_model: str = "bge-m3"
+    general_model_provider: Literal["ollama", "openai"] = "ollama"
     general_model_url: str = "http://127.0.0.1:11434"
     general_model: str = "deepseek-r1:7b"
+    general_model_api_key: SecretStr = SecretStr("")
     reranker_url: str = ""
     reranker_key: str = ""
     chat_base_url: str = ""

@@ -184,33 +184,54 @@ class DecisionService:
             payload = {"question": question, "previous_turns": recent}
             return await self.completion("general_chat", GENERAL_PROMPT, payload, run_id=run_id, session_id=session_id)
 
+        messages = [
+            {"role": "system", "content": GENERAL_PROMPT},
+            *recent,
+            {"role": "user", "content": question},
+        ]
+        request = self._general_openai if self.settings.general_model_provider == "openai" else self._general_ollama
+
         async def complete():
-            response = await self.http.post(
-                self.settings.general_model_url.rstrip("/") + "/api/chat",
-                json={
-                    "model": self.settings.general_model,
-                    "messages": [
-                        {"role": "system", "content": GENERAL_PROMPT},
-                        *recent,
-                        {"role": "user", "content": question},
-                    ],
-                    "stream": False,
-                    "think": False,
-                    "keep_alive": "15m",
-                    "options": {"num_ctx": 3072, "num_predict": 1024, "temperature": 0.2},
-                },
-                timeout=80,
-            )
-            response.raise_for_status()
-            result = response.json()
-            content = result["message"]["content"].strip()
-            if not content:
+            content, tokens = await request(messages)
+            if not isinstance(content, str) or not content.strip():
                 raise ValueError("Model returned no text")
-            if tokens := result.get("prompt_eval_count", 0) + result.get("eval_count", 0):
+            if isinstance(tokens, int) and tokens > 0:
                 self.observability.observe("model_usage", "general_chat", "ok", tokens=tokens)
-            return content
+            return content.strip()
 
         return await self._measure("general_chat", complete)
+
+    async def _general_ollama(self, messages: list[dict]) -> tuple[str | None, int]:
+        response = await self.http.post(
+            self.settings.general_model_url.rstrip("/") + "/api/chat",
+            json={
+                "model": self.settings.general_model,
+                "messages": messages,
+                "stream": False,
+                "think": False,
+                "keep_alive": "15m",
+                "options": {"num_ctx": 3072, "num_predict": 1024, "temperature": 0.2},
+            },
+            timeout=80,
+        )
+        response.raise_for_status()
+        result = response.json()
+        tokens = result.get("prompt_eval_count", 0) + result.get("eval_count", 0)
+        return result["message"]["content"], tokens
+
+    async def _general_openai(self, messages: list[dict]) -> tuple[str | None, int]:
+        key = self.settings.general_model_api_key.get_secret_value()
+        if not key:
+            raise ValueError("The OpenAI-compatible provider requires a general model API key")
+        response = await self.http.post(
+            self.settings.general_model_url.rstrip("/") + "/chat/completions",
+            headers={"Authorization": f"Bearer {key}"},
+            json={"model": self.settings.general_model, "messages": messages, "stream": False},
+            timeout=80,
+        )
+        response.raise_for_status()
+        result = response.json()
+        return result["choices"][0]["message"]["content"], (result.get("usage") or {}).get("total_tokens", 0)
 
     async def completion(self, name: str, system: str, payload: dict, *, run_id="", session_id="") -> str:
         async def complete():
