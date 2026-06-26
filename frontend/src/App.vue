@@ -3,9 +3,9 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { ElButton, ElInput } from 'element-plus'
 import { ChatDotRound, Connection, DataAnalysis, Headset, Key, Switch, Tickets } from '@element-plus/icons-vue'
 import { api } from './api'
-import ChatView from './ChatView.vue'
-import SupportView from './SupportView.vue'
-import AnalyticsView from './AnalyticsView.vue'
+import ChatView from './views/ChatView.vue'
+import SupportView from './views/SupportView.vue'
+import AnalyticsView from './views/AnalyticsView.vue'
 import { profiles, savedState, storeState } from './display'
 
 const storedProfile = savedState('support-demo:profile', 'demo-alice')

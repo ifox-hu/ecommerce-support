@@ -2,6 +2,7 @@
 /.env
 /.runtime/
 /.pytest_cache/
+/.playwright-cli/
 /.artifacts/
 /artifacts/
 *.egg-info/
@@ -12,3 +13,4 @@ __pycache__/
 /frontend/test-results/
 /frontend/playwright-report/
 /frontend/.playwright-cli/
+/frontend/.vite/

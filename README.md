@@ -1,12 +1,28 @@
-# 电商智能客服系统
+<p align="center">
+  <img src="docs/assets/banner.png" alt="电商智能客服系统，从订单查询、政策引用到工单交接和运营问数" width="100%">
+</p>
 
-面向电商售后的客服与运营工作台。顾客可以查询订单、物流和退款，查看售后政策的引用来源，或提交人工工单。客服可以核对订单和相关条款并接单。运营可以用自然语言查询演示数据，查看指标口径、SQL 和执行步骤。
+<h1 align="center">电商智能客服系统</h1>
 
-- **本地工作台** [http://127.0.0.1:8765/](http://127.0.0.1:8765/)
-- **技术栈** Python、FastAPI、LangGraph、LangChain、MCP、Vue 3、Element Plus
-- **架构参考** [AIOps 智能运维与知识助手平台（Python 版）](https://github.com/ifox-hu/aiops-py)
+<p align="center">在同一套工作台里完成售后问答、人工工单和运营查询。</p>
 
-## 1. 项目定位与工作区
+<p align="center">
+  <img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-API-009688">
+  <img alt="LangGraph" src="https://img.shields.io/badge/LangGraph-Workflow-236748">
+  <img alt="Vue 3" src="https://img.shields.io/badge/Vue-3-42B883">
+  <a href="https://github.com/ifox-hu/ecommerce-support-demo/actions/workflows/quality.yml"><img alt="Ecommerce quality" src="https://github.com/ifox-hu/ecommerce-support-demo/actions/workflows/quality.yml/badge.svg"></a>
+</p>
+
+<p align="center">
+  <a href="#1-功能模块">功能模块</a> ·
+  <a href="#5-界面预览">界面预览</a> ·
+  <a href="#4-本地演示">本地演示</a> ·
+  <a href="#3-快速开始">快速开始</a> ·
+  <a href="#8-开发文档">开发文档</a>
+</p>
+
+## 1. 功能模块
 
 系统用 LangGraph 管理客服流程。订单查询和工单创建由工作流调用 MCP 工具，政策问答依据检索到的条款生成回复，复杂售后问题可以生成分析摘要供客服接手。
 
@@ -41,7 +57,7 @@
          ↳ 可修复错误返回 SQL 生成节点，达到重试上限后停止
 ```
 
-## 3. 快速启动
+## 3. 快速开始
 
 在 Windows PowerShell 中进入项目目录，准备 Python 3.11+ 和 Node 22+ 后运行：
 
@@ -57,7 +73,7 @@
 
 也可在 `.env` 将 `ECOMMERCE_GENERAL_MODEL_PROVIDER` 设为 `openai`，填入服务商的 API Base URL（通常以 `/v1` 结尾）、模型 ID 和 API Key，然后重启后端。配置项见 `.env.example`。应用会调用 Base URL 下的 `/chat/completions`，请求包含本轮问题和最近最多四条会话消息。商城查询和有依据的演示政策回答可独立使用。
 
-## 4. 演示路径
+## 4. 本地演示
 
 | 用户 | 操作 | 预期 |
 | --- | --- | --- |
@@ -73,14 +89,43 @@
 
 可用 `.\.venv\Scripts\python.exe deployment/check_recovery.py` 自动启动隔离的临时进程，模拟工单写入后崩溃并核对恢复后的工单数。
 
-## 5. 连接实际依赖
+## 5. 界面预览
+
+以下截图取自本地演示模式，使用合成订单和政策数据。
+
+### 顾客对话
+
+七天无理由退货问答显示实际引用条款，右侧可展开检索过程和处理路由。
+
+![顾客对话的政策回复、引用及路由](docs/assets/previews/customer-1440.png)
+
+### 客服工单
+
+售后政策证据不足时创建待接单工单，客服可以查看原始诉求并接手处理。
+
+![客服工单队列和待处理工单详情](docs/assets/previews/support-1440.png)
+
+### 运营问数
+
+按品类展示退款率，同时给出统计口径、实际执行的 SQL 和校验过程。
+
+![运营问数的退款率表格和 SQL 证据](docs/assets/previews/analytics-1440.png)
+
+<details>
+<summary>移动端顾客对话</summary>
+
+<img src="docs/assets/previews/customer-390.png" alt="移动端顾客对话" width="390">
+
+</details>
+
+## 6. 连接实际依赖
 
 1. 通过 `docker compose --profile storage up -d redis mysql milvus` 启动隔离的数据服务，检查 `docker compose --profile storage ps`。宿主机默认端口为 Redis `26379`、MySQL `23306`、Milvus `29530`。MySQL 初始化脚本写入电商交易库和分析库，并为分析查询创建只读账号。配置文件里演示用的账号仅供本地实例。
 2. 将 `.env.example` 复制成 `.env`，设置 `ECOMMERCE_MODE=full`，填写配置中对应的存储地址、聊天模型、Jev 密钥、BGE-Reranker 地址及自定义角色令牌。完整模式使用浏览器中输入的令牌。Docker 中运行后端时，MySQL、Redis、Milvus 地址使用 Compose 服务名和容器端口，宿主机 Ollama 使用 `host.docker.internal`。
 3. Ollama 的 `/api/embed` 使用 `bge-m3`。重排服务使用兼容 Hugging Face TEI 的 `/rerank`，输入 `{query,texts}`，输出各文本的 `index` 与重排分数。可使用 `BAAI/bge-reranker-v2-m3`。提供了 `ECOMMERCE_RERANKER_KEY` 用于受认证的地址。
 4. 在虚拟环境执行 `python -m pip install -e '.[test,integrations]'`，启动后端。首条知识问答会向量化并索引生效的 `data/policies.json`；自定义片段可用 `ECOMMERCE_KNOWLEDGE_FILE` 指定。政策 JSON 可通过生效日期更新版本，调用链路会返回两路召回、精排和证据判定记录。
 
-## 6. 可观测与离线评测
+## 7. 可观测与离线评测
 
 后端在 `/metrics` 输出请求、路由、工具调用、模型耗时和 Token 指标。OpenTelemetry 记录 API、工作流节点、MCP 和数据库调用。Grafana 读取 Prometheus 指标，Jaeger 查看单次运行的链路。配置 Langfuse 后，可记录模型调用和用量，并关联 Judge 评分。[运行观测配置](deployment/observability/README.md)
 
@@ -96,7 +141,9 @@ npm.cmd --prefix frontend test
 
 反馈示例使用 `python -m evals.feedback_case prepare --output .runtime/policies-candidate.json` 从基础知识库生成候选条款，用独立进程加载候选文件，然后运行 `python -m evals.feedback_case replay --baseline-url http://127.0.0.1:8765 --candidate-url http://127.0.0.1:8766 --output .runtime/feedback-replay.json`。回放会提交并复核测试反馈、复验更新后的引用和路由。
 
-## 7. 主要接口
+## 8. 开发文档
+
+[OpenAPI 交互文档](http://127.0.0.1:8765/docs) · [离线评测](evals/README.md) · [运行观测](deployment/observability/README.md) · [AIOps 架构参考](https://github.com/ifox-hu/aiops-py)
 
 | 方法与路径 | 用途 |
 | --- | --- |
@@ -108,20 +155,22 @@ npm.cmd --prefix frontend test
 | `POST /api/analytics` | 运行运营问数流程 |
 | `POST /api/feedback`、`GET /api/feedback`、`PATCH /api/feedback/{identifier}` | 提交、查看与复核反馈 |
 
-## 8. 项目结构
+## 9. 项目结构
 
 | 目录 | 职责 |
 | --- | --- |
 | `app/api`、`app/models` | HTTP、SSE、角色校验和边界模型 |
 | `app/agent` | LangGraph 客服节点、固定路由和 MCP 客户端 |
-| `app/services` | 订单、工单、检索、会话、执行记录和问数 |
+| `app/services` | 订单、工单、检索、会话、执行记录和模型调用 |
+| `app/services/analytics` | 问数图、指标目录、SQL 校验与只读查询 |
 | `app/core` | 指标、链路和模型跟踪 |
 | `mcp_servers` | 电商工具进程与订单访问边界 |
-| `frontend` | Vue 3 与 Element Plus 工作台 |
+| `frontend/src/views` | 顾客对话、客服工单和运营问数页面 |
 | `data`、`evals`、`tests` | 合成数据、评测集与回归用例 |
 | `deployment` | 容器与可观测配置 |
+| `docs/assets` | README 横幅和演示截图 |
 
-## 9. 数据与验证边界
+## 10. 数据与验证边界
 
 - 演示数据为合成样例，包含订单、物流、售后政策和运营数据。演示模式可验证工作流、MCP、检查点和数据库写入，模型相关实现以当前运行配置为准。
 - 完整模式需要配置实际模型、Jev、检索服务和数据服务。实验报告通过 `runtime.mode`、模型及知识版本标记测试环境。

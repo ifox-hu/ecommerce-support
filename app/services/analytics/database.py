@@ -19,13 +19,13 @@ from sqlglot.errors import OptimizeError, ParseError, TokenError
 from sqlglot.optimizer.qualify import qualify
 from sqlglot.optimizer.scope import traverse_scope
 
-from app.services.analytics_catalog import SCHEMA
+from .catalog import SCHEMA
 
 
 MAX_ROWS = 100
 MAX_EXPLAIN_WORK = 10_000
 MAX_QUERY_MS = 3_000
-_SQLITE_FIXTURE = Path(__file__).resolve().parents[2] / "data" / "analytics_mysql.sql"
+_SQLITE_FIXTURE = Path(__file__).resolve().parents[3] / "data" / "analytics_mysql.sql"
 _SAFE_FUNCTIONS = frozenset({
     "ABS", "AND", "AVG", "CASE", "CAST", "CEIL", "COALESCE", "CONCAT", "COUNT", "CURRENT_DATE",
     "DATE", "DATE_ADD", "DATE_DIFF", "DATE_SUB", "DENSE_RANK", "EXISTS", "EXTRACT",

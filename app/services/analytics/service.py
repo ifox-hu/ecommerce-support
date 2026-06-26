@@ -16,8 +16,8 @@ from pydantic import BaseModel, Field
 from typing_extensions import TypedDict
 
 from app.core.observability import Observability
-from app.services.analytics_catalog import CATALOG, METRICS, SYNONYM_GROUPS, Document, Period, date_period, demo_sql
-from app.services.analytics_db import ApprovedQuery, MAX_ROWS, QueryProblem, init_snapshot, query_mysql, query_sqlite, validate_sql
+from .catalog import CATALOG, METRICS, SYNONYM_GROUPS, Document, Period, date_period, demo_sql
+from .database import ApprovedQuery, MAX_ROWS, QueryProblem, init_snapshot, query_mysql, query_sqlite, validate_sql
 
 
 MAX_REPAIRS = 2

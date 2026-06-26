@@ -4,9 +4,9 @@ import { ElButton, ElInput } from 'element-plus'
 import {
   ArrowRight, ChatDotRound, Connection, Document, Goods, Headset, List, Plus, Promotion, Refresh, Tickets, Van,
 } from '@element-plus/icons-vue'
-import { api } from './api'
-import { formatDate, reasonLabel, routeLabel, savedState, storeState, ticketStatus } from './display'
-import { useChat } from './useChat'
+import { api } from '../api'
+import { formatDate, reasonLabel, routeLabel, savedState, storeState, ticketStatus } from '../display'
+import { useChat } from '../useChat'
 
 const props = defineProps({
   token: { type: String, required: true },

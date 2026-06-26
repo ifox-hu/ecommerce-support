@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { ElButton, ElInput, ElTable, ElTableColumn } from 'element-plus'
 import { ArrowRight, DataAnalysis, Document, List, Promotion } from '@element-plus/icons-vue'
-import { api } from './api'
+import { api } from '../api'
 
 const props = defineProps({ token: { type: String, required: true } })
 const question = ref('')

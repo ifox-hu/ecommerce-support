@@ -3,10 +3,14 @@
 .venv
 .runtime
 .artifacts
+artifacts
 .pytest_cache
+.playwright-cli
 **/__pycache__
 **/*.egg-info
 frontend/node_modules
 frontend/dist
 frontend/test-results
 frontend/playwright-report
+frontend/.playwright-cli
+frontend/.vite
