@@ -11,7 +11,7 @@
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-API-009688">
   <img alt="LangGraph" src="https://img.shields.io/badge/LangGraph-Workflow-236748">
   <img alt="Vue 3" src="https://img.shields.io/badge/Vue-3-42B883">
-  <a href="https://github.com/ifox-hu/ecommerce-support-demo/actions/workflows/quality.yml"><img alt="Ecommerce quality" src="https://github.com/ifox-hu/ecommerce-support-demo/actions/workflows/quality.yml/badge.svg"></a>
+  <a href="https://github.com/ifox-hu/ecommerce-support/actions/workflows/quality.yml"><img alt="Ecommerce quality" src="https://github.com/ifox-hu/ecommerce-support/actions/workflows/quality.yml/badge.svg"></a>
 </p>
 
 <p align="center">
