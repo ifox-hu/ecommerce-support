@@ -6,6 +6,8 @@
 
 <p align="center">在同一套工作台里完成售后问答、人工工单和运营查询。</p>
 
+在线体验支持输入问题并查看样例售后条款。完整对话、订单查询和工单可以在本地工作台体验。 [静态政策问答](https://ifox-hu.github.io/ecommerce-support/) · [本地启动](#3-快速开始)
+
 <p align="center">
   <img alt="Python 3.11+" src="https://img.shields.io/badge/Python-3.11%2B-3776AB">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-API-009688">
@@ -59,6 +61,20 @@
 
 ## 3. 快速开始
 
+### 静态政策问答
+
+静态页在浏览器里检索样例条款，显示适用渠道、版本和生效日期。资料不足时会说明缺口。它和本地工作台共享 `data/policies.json` 及主题词，访问时无需后端或模型密钥。
+
+```powershell
+npm --prefix frontend ci
+npm --prefix frontend run build:pages
+npm --prefix frontend run preview:pages
+```
+
+本地预览地址为 [127.0.0.1:4173](http://127.0.0.1:4173/)。发布到 GitHub Pages 时，在仓库 **Settings → Pages → Source** 选择 **GitHub Actions**，然后运行 **Static policy preview** 工作流。
+
+### 本地工作台
+
 在 Windows PowerShell 中进入项目目录，准备 Python 3.11+ 和 Node 22+ 后运行：
 
 ```powershell
@@ -74,6 +90,8 @@
 也可在 `.env` 将 `ECOMMERCE_GENERAL_MODEL_PROVIDER` 设为 `openai`，填入服务商的 API Base URL（通常以 `/v1` 结尾）、模型 ID 和 API Key，然后重启后端。配置项见 `.env.example`。应用会调用 Base URL 下的 `/chat/completions`，请求包含本轮问题和最近最多四条会话消息。商城查询和有依据的演示政策回答可独立使用。
 
 ## 4. 本地演示
+
+[观看本地工作台录屏](docs/assets/previews/local-demo.webm)可查看政策引用、MCP 物流查询和证据不足后的人工工单。
 
 | 用户 | 操作 | 预期 |
 | --- | --- | --- |
