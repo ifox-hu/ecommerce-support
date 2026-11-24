@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:pages": "vite build preview --base ./ --outDir ../dist-pages --emptyOutDir",
-    "preview:pages": "vite preview preview --outDir ../dist-pages --host 127.0.0.1",
+    "build:pages": "vite build --mode pages --base ./ --outDir dist-pages",
+    "preview:pages": "vite preview --mode pages --outDir dist-pages --host 127.0.0.1",
     "test": "node --test"
   },
   "engines": {

@@ -1,0 +1,77 @@
+{
+  "上周华东渠道各品类退款率是多少？": {
+    "status": "ok",
+    "answer": "2026-11-16 至 2026-11-22（含首尾），退款率查询返回 3 行。 按下单日期统计，分母为已支付订单数，分子为其中至少有一笔成功退款的订单数。同一订单重复退款只计一次，结果以 0 到 1 的比例表示。",
+    "columns": [
+      "品类",
+      "退款率"
+    ],
+    "rows": [
+      [
+        "家居",
+        0.0
+      ],
+      [
+        "数码",
+        0.5
+      ],
+      [
+        "鞋服",
+        0.5
+      ]
+    ],
+    "sql": "SELECT item.category AS 品类, ROUND(1.0 * SUM(CASE WHEN EXISTS(SELECT 1 FROM refunds AS r WHERE r.order_id = o.order_id AND r.status = 'succeeded') THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 4) AS 退款率 FROM orders AS o JOIN payments AS p ON p.order_id = o.order_id AND p.status = 'paid' JOIN products AS item ON item.product_id = o.product_id JOIN channels AS c ON c.channel_id = o.channel_id WHERE c.region IN ('华东') AND o.order_date >= '2026-11-16' AND o.order_date < '2026-11-23' GROUP BY item.category ORDER BY item.category LIMIT 100",
+    "metric": "按下单日期统计，分母为已支付订单数，分子为其中至少有一笔成功退款的订单数。同一订单重复退款只计一次，结果以 0 到 1 的比例表示。",
+    "time_range": "2026-11-16 至 2026-11-22（含首尾）"
+  },
+  "按渠道统计销售额": {
+    "status": "ok",
+    "answer": "全部下单日期，销售额查询返回 3 行。 按下单日期统计已完成支付的人民币金额合计，退款金额单独核算。",
+    "columns": [
+      "渠道",
+      "销售额"
+    ],
+    "rows": [
+      [
+        "华东官方商城",
+        2830
+      ],
+      [
+        "华东微信小程序",
+        820
+      ],
+      [
+        "华南官方商城",
+        340
+      ]
+    ],
+    "sql": "SELECT c.name AS 渠道, COALESCE(SUM(p.amount), 0) AS 销售额 FROM orders AS o JOIN payments AS p ON p.order_id = o.order_id AND p.status = 'paid' JOIN channels AS c ON c.channel_id = o.channel_id GROUP BY c.name ORDER BY 销售额 DESC, c.name LIMIT 100",
+    "metric": "按下单日期统计已完成支付的人民币金额合计，退款金额单独核算。",
+    "time_range": "全部下单日期"
+  },
+  "按品类统计订单量": {
+    "status": "ok",
+    "answer": "全部下单日期，订单量查询返回 3 行。 按下单日期统计生成的订单笔数，包括待支付及已取消的订单。",
+    "columns": [
+      "品类",
+      "订单量"
+    ],
+    "rows": [
+      [
+        "数码",
+        5
+      ],
+      [
+        "鞋服",
+        4
+      ],
+      [
+        "家居",
+        3
+      ]
+    ],
+    "sql": "SELECT item.category AS 品类, COUNT(*) AS 订单量 FROM orders AS o JOIN products AS item ON item.product_id = o.product_id GROUP BY item.category ORDER BY 订单量 DESC, item.category LIMIT 100",
+    "metric": "按下单日期统计生成的订单笔数，包括待支付及已取消的订单。",
+    "time_range": "全部下单日期"
+  }
+}

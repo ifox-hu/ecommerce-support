@@ -50,10 +50,11 @@ svg { width: 1em; height: 1em; flex: none; vertical-align: middle; }
 .brand-name { font-size: 16px; font-weight: 750; line-height: 1.35; white-space: nowrap; }
 .brand-caption { margin-top: 3px; font-size: 11px; color: var(--muted); white-space: nowrap; letter-spacing: .06em; }
 .topnav { gap: 4px; border: 1px solid #e8ede7; padding: 4px; background: #f2f5f1; border-radius: 11px; }
-.topnav button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 37px; padding: 4px 15px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 650; white-space: nowrap; }
-.topnav button:hover { background: #e9f1e9; color: var(--accent-dark); }
+.topnav :is(button, a) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 37px; padding: 4px 15px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 650; white-space: nowrap; text-decoration: none; }
+.topnav :is(button, a):hover { background: #e9f1e9; color: var(--accent-dark); }
 .topnav .selected { background: white; border-color: #e1e9df; color: var(--accent-dark); box-shadow: 0 1px 3px #234f3b10; }
-.topnav button svg { font-size: 17px; }
+.topnav :is(button, a) svg { font-size: 17px; }
+.preview-local-link { color: var(--accent-dark); font-size: 12px; white-space: nowrap; text-underline-offset: 3px; }
 .top-actions { justify-content: flex-end; gap: 16px; }
 .health, .identity { gap: 8px; white-space: nowrap; }
 .health { border: 0; padding: 5px 2px; color: var(--muted); background: transparent; font-size: 12px; }
@@ -289,7 +290,7 @@ svg { width: 1em; height: 1em; flex: none; vertical-align: middle; }
 @media (max-width: 860px) {
   .topbar { grid-template-columns: 1fr 1fr; padding: 10px 16px; gap: 9px; }
   .topnav { grid-column: 1 / -1; grid-row: 2; justify-self: stretch; }
-  .topnav button { flex: 1; }
+  .topnav :is(button, a) { flex: 1; }
   .workspace-bar { min-height: 46px; }
   .chat-layout { grid-template-columns: 170px minmax(0, 1fr); height: auto; min-height: 0; }
   .conversation { height: clamp(525px, 75dvh, 725px); }
@@ -310,8 +311,8 @@ svg { width: 1em; height: 1em; flex: none; vertical-align: middle; }
   .identity-avatar { width: 22px; font-size: 10px; }
   .identity select { font-size: 11px; min-height: 24px; padding-right: 13px; }
   .identity-switch { right: 4px; font-size: 10px; }
-  .topnav button { padding-inline: 5px; min-height: 30px; gap: 4px; font-size: 11px; }
-  .topnav button svg { font-size: 13px; }
+  .topnav :is(button, a) { padding-inline: 5px; min-height: 30px; gap: 4px; font-size: 11px; }
+  .topnav :is(button, a) svg { font-size: 13px; }
   .workspace { padding-inline: 10px; }
   .workspace-bar { font-size: 11px; min-height: 40px; }
   .chat-layout { display: flex; flex-direction: column; }
@@ -352,4 +353,8 @@ svg { width: 1em; height: 1em; flex: none; vertical-align: middle; }
   .metrics strong { font-size: 20px; }
   .support-layout, .analytics-layout { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .table-toolbar, .detail-pane, .query-details, .analytics-form, .result-content { padding: 10px; }
+}
+
+@media (max-width: 360px) {
+  .static-topbar .identity-avatar { display: none; }
 }

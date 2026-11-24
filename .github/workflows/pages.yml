@@ -1,4 +1,4 @@
-name: Static policy preview
+name: Static workbench
 
 on:
   push:

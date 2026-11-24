@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import { ElButton, ElInput, ElTable, ElTableColumn } from 'element-plus'
 import { ArrowRight, DataAnalysis, Document, List, Promotion } from '@element-plus/icons-vue'
-import { api } from '../api'
+import { api } from '#workbench-api'
 
-const props = defineProps({ token: { type: String, required: true } })
+const props = defineProps({ token: { type: String, required: true }, staticPreview: Boolean })
 const question = ref('')
 const submitted = ref('')
 const result = ref(null)
@@ -73,9 +73,9 @@ async function ask() {
     <header class="view-header" data-enter>
       <div class="view-title">
         <span class="view-icon"><DataAnalysis aria-hidden="true" /></span>
-        <div><h1>运营问数</h1><p>查询订单、退款及渠道数据，核对指标口径和实际查询语句。</p></div>
+        <div><h1>运营问数</h1><p>{{ staticPreview ? '选择一个示例问题，查看预先计算的结果、指标口径和 SQL。' : '查询订单、退款及渠道数据，核对指标口径和实际查询语句。' }}</p></div>
       </div>
-      <span class="status-pill">只读查询</span>
+      <span class="status-pill">{{ staticPreview ? '预计算样例' : '只读查询' }}</span>
     </header>
 
     <section class="panel analytics-form" aria-label="提出运营问题">
@@ -113,11 +113,11 @@ async function ask() {
       <aside class="panel query-details" aria-label="查询证据">
         <div class="section-title"><Document aria-hidden="true" /><h2>查询证据</h2></div>
         <section>
-          <h3>实际 SQL</h3>
+          <h3>{{ staticPreview ? '示例 SQL' : '实际 SQL' }}</h3>
           <pre v-if="result?.sql"><code>{{ result.sql }}</code></pre>
-          <p v-else class="context-empty">执行的 SQL 会在这里显示。</p>
+          <p v-else class="context-empty">{{ staticPreview ? '查询样例后显示对应的 SQL。' : '执行的 SQL 会在这里显示。' }}</p>
         </section>
-        <section>
+        <section v-if="!staticPreview">
           <h3><List aria-hidden="true" /> 校验与修正 <span v-if="result?.repairs" class="count">修正 {{ result.repairs }} 次</span></h3>
           <ol v-if="steps.length" class="query-steps">
             <li v-for="(step, index) in steps" :key="index">

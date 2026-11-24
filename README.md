@@ -30,13 +30,13 @@
 
 | 体验方式 | 入口 | 可以做什么 |
 | --- | --- | --- |
-| **在线政策问答** | [立即体验](https://ifox-hu.github.io/ecommerce-support/) | 直接输入售后问题，查看返回的样例条款、适用渠道、版本和生效日期。无需登录 |
+| **在线工作台** | [顾客对话](https://ifox-hu.github.io/ecommerce-support/#customer) · [客服工单](https://ifox-hu.github.io/ecommerce-support/#support) · [运营问数](https://ifox-hu.github.io/ecommerce-support/#analytics) | 查询样例政策和订单，创建并接手演示工单，查看示例问数结果 |
 | **完整工作台录屏** | [观看录屏](docs/assets/previews/local-demo.webm) | 查看政策引用、订单物流查询和转人工建单 |
 | **本地工作台** | [启动步骤](#快速开始) | 在顾客、客服和运营身份之间切换，操作订单查询、工单和问数 |
 
-**推荐体验路线**：在线试问「退款一般多久到账？」查看条款，再问「活动赠品拆封了，主商品还能退吗？」看资料不足时的提示。启动本地版后，同一个赠品问题会创建待接单工单，切到客服页可接手处理。
+先在顾客对话输入「退款一般多久到账？」查看条款。再问「活动赠品拆封了，主商品还能退吗？」，切到客服工单接手。最后到运营问数选择「上周华东渠道各品类退款率是多少？」查看样例结果和 SQL。
 
-在线页在浏览器里检索样例政策。订单、工单和运营数据由本地后端提供，演示使用合成数据。
+在线工作台使用合成数据，无需登录或启动后端。会话、工单和反馈保存在当前浏览器，运营问数展示预先计算的样例。连接真实服务和运行完整问数流程可使用本地工作台。
 
 ## 功能模块
 
@@ -117,7 +117,7 @@ app/mcp/                工具客户端和订单、工单工具
 app/services/           检索、业务、会话、执行记录和模型调用
 app/services/analytics/ 问数流程、指标目录和 SQL 校验
 frontend/src/views/     顾客、客服、运营三个页面
-frontend/preview/       GitHub Pages 政策问答
+frontend/preview/       GitHub Pages 演示数据和浏览器端服务
 data/                   示例政策和业务数据
 evals/                  离线评测和反馈回放
 deployment/             部署配置和恢复检查
@@ -134,7 +134,7 @@ deployment/             部署配置和恢复检查
 | [GitHub Actions](.github/workflows/quality.yml) | 回归检查与可选的完整模式评测 |
 
 <details>
-<summary>本地预览静态政策问答</summary>
+<summary>本地预览静态工作台</summary>
 
 ```powershell
 npm --prefix frontend ci

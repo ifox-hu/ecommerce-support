@@ -4,7 +4,7 @@ import { ElButton, ElInput } from 'element-plus'
 import {
   ArrowRight, ChatDotRound, Connection, Document, Goods, Headset, List, Plus, Promotion, Refresh, Tickets, Van,
 } from '@element-plus/icons-vue'
-import { api } from '../api'
+import { api } from '#workbench-api'
 import { formatDate, reasonLabel, routeLabel, savedState, storeState, ticketStatus } from '../display'
 import { useChat } from '../useChat'
 
@@ -12,6 +12,7 @@ const props = defineProps({
   token: { type: String, required: true },
   storageKey: { type: String, required: true },
   profile: { type: Object, required: true },
+  staticPreview: Boolean,
 })
 
 const {
@@ -142,7 +143,7 @@ function onComposerKey(event) {
         <div v-else-if="!messages.length" class="chat-welcome" data-enter>
           <div class="welcome-illustration"><Headset aria-hidden="true" /><span></span></div>
           <h2>{{ profile.name }}，你好</h2>
-          <p>可以查订单、了解商城政策，也可以直接问日常问题。</p>
+          <p>{{ staticPreview ? '查询样例订单和售后政策，或提交一条演示工单。' : '可以查订单、了解商城政策，也可以直接问日常问题。' }}</p>
 
           <div class="sample-grid" aria-label="常见问题">
             <button v-for="sample in samples" :key="sample.title" type="button" class="sample-card" @click="setDraft(sample.text)">
@@ -277,6 +278,7 @@ function onComposerKey(event) {
         <p class="source-meta">
           {{ detailSource.id }}
           <span v-if="detailSource.version"> · 版本 {{ detailSource.version }}</span>
+          <span v-if="staticPreview && detailSource.channel"> · {{ detailSource.channel }}</span>
           <span v-if="detailSource.effective_from"> · {{ detailSource.effective_from }} 生效</span>
         </p>
         <p class="source-text">{{ detailSource.text }}</p>

@@ -1,5 +1,5 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { api } from './api'
+import { api } from '#workbench-api'
 import { savedState, storeState } from './display'
 
 function newId() {

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { ElButton } from 'element-plus'
 import { ArrowRight, CircleCheck, Refresh, Tickets, Timer } from '@element-plus/icons-vue'
-import { api } from '../api'
+import { api } from '#workbench-api'
 import { formatDate, reasonLabel, ticketStatus } from '../display'
 
 const props = defineProps({ token: { type: String, required: true } })
