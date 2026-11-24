@@ -28,7 +28,7 @@ def error_types(error: BaseException) -> str:
 class CommerceTools:
     def __init__(self, business_db: Path, mysql_url: str, observability, otel_endpoint: str = ""):
         self.parameters = StdioServerParameters(
-            command=sys.executable, args=["-m", "mcp_servers.commerce"],
+            command=sys.executable, args=["-m", "app.mcp.server"],
             env={"ECOMMERCE_TOOL_DB": str(business_db.resolve()), "ECOMMERCE_TOOL_MYSQL": mysql_url,
                  "ECOMMERCE_TOOL_OTEL": otel_endpoint, "PYTHONIOENCODING": "utf-8"},
         )
